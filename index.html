@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Salin Teks</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      font-family: Arial, sans-serif;
+      background: #111827;
+      color: #ffffff;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 500px;
+      background: #1f2937;
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: 0 12px 35px rgba(0,0,0,.35);
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: 25px;
+      text-align: center;
+    }
+
+    .desc {
+      margin: 0 0 18px;
+      text-align: center;
+      color: #cbd5e1;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 160px;
+      resize: vertical;
+      border: 1px solid #475569;
+      border-radius: 12px;
+      padding: 14px;
+      background: #0f172a;
+      color: #ffffff;
+      font-size: 16px;
+      outline: none;
+    }
+
+    textarea:focus {
+      border-color: #94a3b8;
+    }
+
+    button {
+      width: 100%;
+      margin-top: 14px;
+      border: 0;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 17px;
+      font-weight: bold;
+      cursor: pointer;
+      background: #ffffff;
+      color: #111827;
+    }
+
+    button:active {
+      transform: scale(.98);
+    }
+
+    #status {
+      min-height: 24px;
+      margin-top: 12px;
+      text-align: center;
+      font-size: 14px;
+      color: #cbd5e1;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>📋 Salin Teks</h1>
+    <p class="desc">Tekan tombol di bawah untuk menyalin teks ke clipboard.</p>
+
+    <textarea id="copyText" placeholder="Teks yang ingin disalin..."></textarea>
+
+    <button id="copyButton" type="button">📋 Salin</button>
+
+    <div id="status"></div>
+  </main>
+
+  <script>
+    const textBox = document.getElementById("copyText");
+    const copyButton = document.getElementById("copyButton");
+    const status = document.getElementById("status");
+
+    // Ambil teks otomatis dari URL:
+    // contoh: salin.html?text=ABC123
+    const params = new URLSearchParams(window.location.search);
+    const textFromUrl = params.get("text");
+
+    if (textFromUrl !== null) {
+      textBox.value = textFromUrl;
+    }
+
+    async function copyText() {
+      const text = textBox.value;
+
+      if (!text) {
+        status.textContent = "Tidak ada teks untuk disalin.";
+        return;
+      }
+
+      try {
+        if (navigator.clipboard && window.isSecureContext) {
+          await navigator.clipboard.writeText(text);
+        } else {
+          textBox.focus();
+          textBox.select();
+          textBox.setSelectionRange(0, textBox.value.length);
+
+          const success = document.execCommand("copy");
+
+          if (!success) {
+            throw new Error("Copy gagal");
+          }
+        }
+
+        status.textContent = "✅ Berhasil disalin ke clipboard!";
+        copyButton.textContent = "✅ Tersalin";
+
+        setTimeout(() => {
+          copyButton.textContent = "📋 Salin";
+        }, 1500);
+
+      } catch (error) {
+        status.textContent = "❌ Gagal menyalin. Tekan lama teks lalu pilih Salin.";
+      }
+    }
+
+    copyButton.addEventListener("click", copyText);
+  </script>
+</body>
+</html>
